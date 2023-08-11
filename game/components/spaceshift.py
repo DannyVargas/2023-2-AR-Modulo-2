@@ -1,8 +1,13 @@
 from pygame.sprite import Sprite
-from game.utils.constants import SPACESHIP, SCREEN_WIDTH
+from game.utils.constants import SPACESHIP, SCREEN_WIDTH, SCREEN_HEIGHT
 import pygame
 
 class Spaceshift(Sprite):
+    SHIP_SPEED = 10
+    SHIP_WIDTH = 40
+    SHIP_HEIGHT = 60
+    X_POS = (SCREEN_WIDTH // 2) - SHIP_WIDTH
+    Y_POS = 500
     def __init__(self):
         self.image = SPACESHIP
         self.image = pygame.transform.scale(self.image ,(40,60))
@@ -24,13 +29,19 @@ class Spaceshift(Sprite):
         screen.blit(self.image,(self.rect.x , self.rect.y))
     
     def move_left(self):
-        self.rect.x -= 10
+        self.rect.x -= self.SHIP_SPEED
+        if self.rect.left < 0:
+            self.rect.x = SCREEN_WIDTH - self.SHIP_WIDTH
 
     def move_right(self):
-        self.rect.x += 10
+        self.rect.x += self.SHIP_SPEED
+        if self.rect.right >= SCREEN_WIDTH - self.SHIP_WIDTH:
+            self.rect.x = 0
 
     def move_up(self):
-        self.rect.y -= 10
+        if self.rect.y > SCREEN_HEIGHT // 2:
+            self.rect.y -= self.SHIP_SPEED
 
     def move_down(self):
-        self.rect.y += 10
+        if self.rect.y < SCREEN_HEIGHT - 70:
+            self.rect.y +=  self.SHIP_SPEED   
