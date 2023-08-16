@@ -2,6 +2,7 @@ import pygame
 from game.components.bullets.bullet_manager import BulletManager
 from game.components.enemies.enemy_manager import EnemyManager
 from game.components.menu import Menu
+from game.components.power_ups.power_up_manager import PowerUpManager
 from game.components.spaceshift import Spaceshift
 
 from game.utils.constants import BG, FONT_STYLE, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
@@ -25,6 +26,7 @@ class Game:
         self.score = 0
         self.death_count = 0
         self.menu = Menu ('Press any key to start...', self.screen)
+        self.power_up_manager = PowerUpManager()
         
     def execute(self):
 
@@ -41,6 +43,7 @@ class Game:
         self.score = 0
         self.bullet_manager.reset()
         self.enemy_manager.reset()
+        self.power_up_manager.reset()
 
         self.playing = True
         while self.playing:
@@ -59,6 +62,7 @@ class Game:
         self.enemy_manager.update(self)
         self.bullet_manager.update(self)
         self.update_score()
+        self.power_up_manager.update(self)
 
     def draw(self):
         self.clock.tick(FPS)
@@ -67,7 +71,9 @@ class Game:
         self.player.draw(self.screen)
         self.enemy_manager.draw(self.screen)
         self.bullet_manager.draw(self.screen)
-        self.draw_score() #implementar
+        self.draw_score()
+        self.power_up_manager.draw(self.screen)
+        self.draw_power_up_time()
         pygame.display.flip()
 
     def draw_background(self):
@@ -103,3 +109,16 @@ class Game:
         text_rect = text.get_rect()
         text_rect.center = (100,100)
         self.screen.blit(text, text_rect)
+
+    def draw_power_up_time(self):
+        if self.player.has_power_up:
+            time_to_show = round((self.player.power_time_up - pygame.time.get_ticks())/1000, 2)
+            if time_to_show >= 0:
+                font = pygame.font.Font(FONT_STYLE, 30)
+                text = font.render(f'Power up enable for: {time_to_show} seonds', True, (255,255,255))
+                text_rect = text.get_rect()
+                self.screen.blit(text, (540, 50))
+            else:
+                self.player.has_power_up = False
+                self.player.power_up_type = DEFAULT_TYPE
+                self.player.set_image()
